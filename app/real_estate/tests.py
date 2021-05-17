@@ -114,7 +114,7 @@ class PrivateRealEstateApiTests(TestCase):
         response = self.client.get(ADDRESSES_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response_results = response.data
+        response_results = response.data["results"]
         addresses = Address.objects.all().order_by("id")
         serializer = AddressListSerializer(addresses, many=True)
         self.assertEqual(len(response_results), 2)
@@ -133,7 +133,7 @@ class PrivateRealEstateApiTests(TestCase):
         create_sample_listing()
         create_sample_listing()
         response = self.client.get(LISTINGS_URL)
-        response_results = response.data
+        response_results = response.data["results"]
         self.assertEqual(len(response_results), 2)
 
         listings = Listing.objects.all().order_by("id")
@@ -153,3 +153,61 @@ class PrivateRealEstateApiTests(TestCase):
         serializer = ListingSerializer(listings, many=True)
         self.assertEqual(len(serializer.data), 1)
         self.assertEqual(response.data, serializer.data[0])
+
+    def test_filter_listings_by_city(self):
+        address = create_sample_address(city="Waterloo")
+        address_to_filter = create_sample_address(city="Cambridge")
+        listing = create_sample_listing(address=address)
+        listing_to_filter = create_sample_listing(address=address_to_filter)
+        response_all = self.client.get(LISTINGS_URL)
+        self.assertEqual(response_all.status_code, status.HTTP_200_OK)
+
+        response_all_results = response_all.data["results"]
+        self.assertEqual(len(response_all_results), 2)
+
+        response_filtered = self.client.get(
+            LISTINGS_URL, {"city": "cambridge"}
+        )
+        self.assertEqual(response_filtered.status_code, status.HTTP_200_OK)
+        response_filtered_results = response_filtered.data["results"]
+
+        serializer = ListingListSerializer(listing)
+        serializer_to_filter = ListingListSerializer(listing_to_filter)
+        self.assertIn(serializer_to_filter.data, response_filtered_results)
+        self.assertNotIn(serializer.data, response_filtered_results)
+
+    def test_ordering_by_price(self):
+        listing_lower_price = create_sample_listing(price=500000)
+        listing_higher_price = create_sample_listing(price=600000)
+
+        # Test ascending
+        response_order_asc = self.client.get(
+            LISTINGS_URL, {"ordering": "price"}
+        )
+        self.assertEqual(response_order_asc.status_code, status.HTTP_200_OK)
+        response_order_asc_results = response_order_asc.data["results"]
+        self.assertEqual(len(response_order_asc_results), 2)
+
+        serializer_lower_price = ListingListSerializer(listing_lower_price)
+        serializer_higher_price = ListingListSerializer(listing_higher_price)
+
+        self.assertEqual(
+            serializer_lower_price.data, response_order_asc_results[0]
+        )
+        self.assertEqual(
+            serializer_higher_price.data, response_order_asc_results[1]
+        )
+
+        # Test descending
+        response_order_desc = self.client.get(
+            LISTINGS_URL, {"ordering": "-price"}
+        )
+        self.assertEqual(response_order_desc.status_code, status.HTTP_200_OK)
+        response_order_desc_results = response_order_desc.data["results"]
+        self.assertEqual(len(response_order_desc_results), 2)
+        self.assertEqual(
+            serializer_higher_price.data, response_order_desc_results[0]
+        )
+        self.assertEqual(
+            serializer_lower_price.data, response_order_desc_results[1]
+        )
