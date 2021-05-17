@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "django_filters",
+    "drf_yasg",
     "real_estate",
     "rest_framework",
 ]

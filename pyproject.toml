@@ -21,4 +21,4 @@ exclude = '''
 
 [tool.isort]
 profile = "black"
-known_third_party = ["django", "django_filters", "rest_framework"]
+known_third_party = ["django", "django_filters", "drf_yasg", "rest_framework"]
