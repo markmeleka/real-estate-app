@@ -5,10 +5,19 @@ Prerequisites:
  * Docker and docker-compose [https://docs.docker.com/get-docker/]
 
 How to run:
- * In the root directory run `docker-compose build` then `docker-compose up`
- * The Django server should be running locally on port 8000 [http://localhost:8000/]
- * To open a shell in the Docker container run `docker-compose run --rm app sh`
- * To run a command in the Docker container directly run `docker-compose run --rm app sh c "<command>"`
+ 1. Run the docker image with: `docker-compose up`
+    * The Django server should be running locally on port 8000 [http://localhost:8000/]
+ 2. Seed the database with:
+    `docker-compose run --rm app sh -c "python manage.py load_realtor_ca_data realtor_ca_cleaned_data.csv"`
+ 3. Make a user for authentication with: `docker-compose run --rm app sh -c "python manage.py createsuperuser"`
+ 4. Access the API documentation locally at /swagger [http://localhost:8000/swagger/]
+    and authorize using your credentials from Step 3.
+    * Example GET usage: http://localhost:8000/api/listing/listings/?min_bedrooms=4&ordering=price
 
 Useful commands:
- * To reset the database run `docker-compose run --rm app sh -c "python manage.py reset_db"`
+ * To open a shell in the Docker container run: `docker-compose run --rm app sh`
+ * To run a django command directly in the Docker container run:
+   `docker-compose run --rm app sh c "python manage.py <command>"`
+   * To reset the database use the command: `reset_db`
+   * To run tests use the command: `test`
+   * To find other available commands use the command: `help`
