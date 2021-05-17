@@ -21,3 +21,8 @@ Useful commands:
    * To reset the database use the command: `reset_db`
    * To run tests use the command: `test`
    * To find other available commands use the command: `help`
+
+TODOs:
+ * Automate Steps 2 and 3 with a shorter command.
+ * API tests for updating and deleting a listing.
+ * Add type hints
