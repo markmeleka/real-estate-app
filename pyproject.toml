@@ -20,4 +20,5 @@ exclude = '''
 '''
 
 [tool.isort]
-known_third_party = ["django"]
+profile = "black"
+known_third_party = ["django", "rest_framework"]
