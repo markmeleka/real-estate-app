@@ -10,5 +10,5 @@ How to run:
  * To open a shell in the Docker container run `docker-compose run --rm app sh`
  * To run a command in the Docker container directly run `docker-compose run --rm app sh c "<command>"`
 
-Useful commands: 
+Useful commands:
  * To reset the database run `docker-compose run --rm app sh -c "python manage.py reset_db"`
